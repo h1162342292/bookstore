@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}
+    三岁书屋首页
+{% endblock %}
+{% block content %}
+    <ul class="nav nav-tabs" style="background: #00b3ee">
+  <li role="presentation" class="dropdown">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+      全部图书分类 <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+      {% for t in type %}
+                <li><a href="{% url 'book:type' t.id %}">{{ t.name }}</a></li>
+            {% endfor %}
+    </ul>
+  </li>
+</ul>
+    <div class="center_con clearfix">
+        <ul class="subnav fl">
+            {% for t in type %}
+                {% if forloop.counter < 7 %}
+                <li><a href="{% url 'book:type' t.id %}">{{ t.name }}</a></li>
+                {% endif %}
+
+            {% endfor %}
+        </ul>
+        <div class="slide fl">
+            <ul class="slide_pics">
+                {% for banner in banners %}
+                    <li><img src="{{ MEDIA_URL }}{{ banner.image }}" alt="幻灯片"></li>
+                {% endfor %}
+            </ul>
+            <div class="prev"></div>
+            <div class="next"></div>
+            <ul class="points"></ul>
+        </div>
+        <div class="adv fl">
+            {% for sale in sales %}
+                <a href="{{ sale.url }}"><img src="{{ MEDIA_URL }}{{ sale.image }}" width="240px"></a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% for t in type %}
+        <div class="list_model">
+            <div class="list_title clearfix">
+                <h3 class="fl" id="model0{{ forloop.counter }}">{{ t.name }}</h3>
+                <div class="subtitle fl">
+                </div>
+                <a href="#" class="goods_more fr" id="fruit_more">查看更多 ></a>
+            </div>
+            <div class="goods_con clearfix">
+                <div class="goods_banner fl"><img src="{{ MEDIA_URL }}{{ t.image }}"></div>
+                <ul class="goods_list fl">
+                        {% for book in books %}
+                            {% if t.id == book.type_id %}
+                                <li class="li">
+                                <h4><a href="{% url 'book:detail' book.id  %}">{{ book.name }}</a>    {{ book.author.name }}著</h4>
+                            <a href="{% url 'book:detail' book.id  %}"><img src="{{ MEDIA_URL }}{{ book.image }}"></a>
+                            <div class="prize">¥ {{ book.price }}</div>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

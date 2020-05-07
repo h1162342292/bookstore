@@ -1,0 +1,100 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>三岁书屋-注册</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+    <style>
+        .foot{
+	border-top:2px solid paleturquoise;
+	margin:30px 0;
+}
+
+.foot_link1{text-align:center;margin-top:50px;}
+.foot_link1 a,.foot_link span{color:#4e4e4e;}
+.foot_link1 a:hover{color:paleturquoise}
+.foot_link1 span{padding:0 10px}
+.foot p{text-align:center; margin-top:10px;}
+
+    </style>
+	<script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/register.js' %}"></script>
+</head>
+<body>
+	<div class="register_con">
+		<div class="l_con fl">
+			<a class="reg_logo"><img src="{% static 'image/logo02.png' %}" style="width: 200px;height: 80px;"></a>
+			<div class="reg_slogan">足不出户，便知天下三分</div>
+			<div class="reg_banner"></div>
+		</div>
+
+		<div class="r_con fr">
+			<div class="reg_title clearfix">
+				<h1>用户注册</h1>
+				<a href="#">登录</a>
+			</div>
+			<div class="reg_form clearfix">
+				<form action="{% url 'user:register' %}" method="post" id="reg_form">
+                    {% csrf_token %}
+				<ul>
+					<li>
+						<label>用户名:</label>
+						<input type="text" name="user_name" id="user_name">
+						<span class="error_tip">提示信息</span>
+					</li>
+					<li>
+						<label>密码:</label>
+						<input type="password" name="pwd" id="pwd">
+						<span class="error_tip">提示信息</span>
+					</li>
+					<li>
+						<label>确认密码:</label>
+						<input type="password" name="cpwd" id="cpwd">
+						<span class="error_tip">提示信息</span>
+					</li>
+					<li>
+						<label>邮箱:</label>
+						<input type="text" name="email" id="email">
+						<span class="error_tip">提示信息</span>
+					</li>
+                    <li>
+						<label>手机号码:</label>
+						<input type="text" name="phone" id="phone">
+						<span class="error_tip">提示信息</span>
+					</li>
+					<li class="agreement">
+						<input type="checkbox" name="allow" id="allow" checked="checked">
+						<label>同意”三岁书屋用户使用协议“</label>
+						<span class="error_tip2">提示信息</span>
+					</li>
+					<li class="reg_sub">
+						<input type="submit" value="注 册" name="">
+					</li>
+                    <li>
+                        <p style="color: red;">{{ errmsg }}</p>
+                    </li>
+				</ul>
+				</form>
+			</div>
+
+		</div>
+
+	</div>
+<div class="foot">
+    <div class="foot_link1">
+            <a href="#" >关于我们</a>
+        <span>|</span>
+        <a href="#">联系我们</a>
+        <span>|</span>
+        <a href="#">招聘人才</a>
+        <span>|</span>
+        <a href="#">友情链接</a>
+    </div>
+    <p>CopyRight © 2016 北京三岁书屋信息技术有限公司 All Rights Reserved</p>
+    <p>电话：010-****888 京ICP备*******8号</p>
+</div>
+
+</body>
+</html>

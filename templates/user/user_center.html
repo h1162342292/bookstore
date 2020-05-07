@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %} 三岁书屋-用户中心 {% endblock %}
+{% block mycss %}
+<style>
+#user_icon{
+    width: 50px;
+    height: 50px;
+}
+</style>
+{% endblock %}
+{% block content %}
+
+    <div class="main_con clearfix">
+        <div class="left_menu_con clearfix">
+            <h3>用户中心</h3>
+            <ul>
+                <li><a href="{% url 'user:center' %}" class="active">· 个人信息</a></li>
+                <li><a href="{% url 'user:order' %}">· 全部订单</a></li>
+                <li><a href="{% url 'user:address' %}">· 收货地址</a></li>
+            </ul>
+        </div>
+        <div class="right_content clearfix">
+            <div class="info_con clearfix">
+                <h3 class="common_title2">基本信息</h3>
+                <ul class="user_info_list">
+                    <li><span>用户名：</span>{{ user.username }}</li>
+                    <li><span>联系方式：</span>{{ user.phone }}</li>
+                    <li><span>联系地址：</span>{{ address.address }}</li>
+                    <li><span>用户头像：</span><img src="{{ MEDIA_URL }}{{ user.icon }}" alt="" id="user_icon">
+                        <input type='button' value='修改头像' onclick='javascript:$("#hiddenFile").click();'/>
+                        {% csrf_token %}
+                        <input id='hiddenFile' type='file' style="display:none" onchange='change_icon();'/>
+                    </li>
+                </ul>
+            </div>
+
+            <h3 class="common_title2">最近浏览</h3>
+            <div class="has_view_list">
+                <ul class="goods_type_list clearfix">
+                    {% for history in histories %}
+                        {% if forloop.counter < 6 %}
+                    <li>
+                        <a href="{% url 'book:detail' history.book.id %}"><img src="{{ MEDIA_URL }}{{ history.book.image }}"></a>
+                        <h4><a href="{% url 'book:detail' history.book.id %}">{{ history.book.name }}</a></h4>
+                        <div class="operate">
+                            <span class="prize">{{ history.book.price }}</span>
+                            <span class="unit">浏览{{ history.number }}次</span>
+                            <p style="display: none" class="bid">{{ history.book.id }}</p>
+                            <a href="#" class="add_goods add_cart" title="加入购物车" ></a>
+                        </div>
+                    </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="add_jump"></div>
+{% endblock %}
+
+{% block myjs %}
+    <script>
+        function change_icon() {
+            {#var dd = $("#hiddenFile").val().split("\\");#}
+            {#$("#showFileName").val(dd[dd.length - 1]);#}
+
+            // 构建form表单
+            var form = new FormData();
+            form.append('uid', {{ user.id }});
+            console.log($("#hiddenFile")[0].files[0])
+            form.append('icon', $("#hiddenFile")[0].files[0]);
+            csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            form.append('csrfmiddlewaretoken', csrf);
+
+
+            $.ajax({
+                url: '{% url 'user:modify_icon' %}',
+                type: 'POST',
+                dataType: 'json',
+                data: form,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if(data.msg=='ok'){
+                        $('#user_icon').attr('src','{{ MEDIA_URL }}'+data.image);
+                    }
+                },
+                error: function (data) {
+                    {#console.log(data);#}
+
+                }
+            });
+
+
+        }
+    </script>
+    <script type="text/javascript">
+    console.log(1);
+    var $add_x = $('.add_cart').offset().top;
+        var $add_y = $('.add_cart').offset().left;
+
+        var $to_x = $('#show_count').offset().top;
+        var $to_y = $('#show_count').offset().left;
+
+        $(".add_jump").css({'left': $add_y + 80, 'top': $add_x + 10, 'display': 'block'})
+        $('.add_cart').click(function () {
+            var book_id = $(this).parent().children('.bid').text();
+            var total = parseFloat($(this).parent().children('.prize').text());
+            console.log(book_id);
+            // 加入购物车
+             $.getJSON('{% url 'cart:add' %}',
+                {bookId:book_id, number: '1',total:total},
+                function (data) {
+                    if (data.status == '400') {
+                        // 用户没有登录
+                        location.href = '{% url 'user:login' %}'
+                    } else if (data.status == '200') {
+                        $(".add_jump").stop().animate({
+                                'left': $to_y + 7,
+                                'top': $to_x + 7
+                            },
+                            "fast", function () {
+                                $(".add_jump").fadeOut('fast', function () {
+                                    $('#show_count').html(data.count);
+                                });
+
+                            });
+                    } else {
+
+                    }
+                });
+
+
+        });
+
+</script>
+{% endblock %}

@@ -1,0 +1,110 @@
+
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+
+<ul class="nav nav-tabs" style="background: #00b3ee">
+  <li role="presentation" class="dropdown">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+      全部图书分类 <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+      {% for t in type %}
+                <li><a href="{% url 'book:type' t.id %}">{{ t.name }}</a></li>
+            {% endfor %}
+    </ul>
+  </li>
+</ul>
+
+
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+            <div class="new_goods">
+                <h3>新品推荐</h3>
+                <ul>
+                    {% for new_book in new_books %}
+                        {% if forloop.counter < 3 %}
+                        <li>
+                            <a href="{% url 'book:detail' new_book.id %}"><img
+                                    src="{{ MEDIA_URL }}{{ new_book.image }}"></a>
+                            <h4><a href="{% url 'book:detail' new_book.id %}">{{ new_book.name }}</a></h4>
+                            <div class=" prize">￥{{ new_book.price }}</div>
+                        </li>
+                        {% endif %}
+
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+		<div class="r_wrap fr clearfix">
+
+			<ul class="goods_type_list clearfix">
+                {% for book in books %}
+				<li>
+					<a href="{% url 'book:detail' book.id %}"><img src="{{ MEDIA_URL }}{{ book.image }}"></a>
+					<h4><a href="{% url 'book:detail' book.id %}">{{ book.name }}</a></h4>
+					<div class="operate">
+						<span class="prize">{{ book.price }}</span>
+						<span class="unit">{{ book.price }}/{{ book.unit }}</span>
+                        <p style="display: none" class="bid" >{{ book.id }}</p>
+						<a href="#" class="add_goods add_cart" title="加入购物车" ></a>
+					</div>
+				</li>
+                {% endfor %}
+			</ul>
+		</div>
+	</div>
+     <div class="add_jump"></div>
+    <div class="pagenation">
+				<a href="#">上一页</a>
+				<a href="#" class="active">1</a>
+				<a href="#">2</a>
+				<a href="#">3</a>
+				<a href="#">4</a>
+				<a href="#">5</a>
+				<a href="#">下一页></a>
+			</div>
+{% endblock %}
+{% block myjs %}
+<script type="text/javascript">
+    var $add_x = $('.add_cart').offset().top;
+        var $add_y = $('.add_cart').offset().left;
+
+        var $to_x = $('#show_count').offset().top;
+        var $to_y = $('#show_count').offset().left;
+
+        $(".add_jump").css({'left': $add_y + 80, 'top': $add_x + 10, 'display': 'block'})
+        $('.add_cart').click(function () {
+            var book_id = $(this).parent().children('.bid').text();
+            var total = parseFloat($(this).parent().children('.prize').text());
+            console.log(book_id);
+            // 加入购物车
+             $.getJSON('{% url 'cart:add' %}',
+                {bookId:book_id, number: '1',total:total},
+                function (data) {
+                    if (data.status == '400') {
+                        // 用户没有登录
+                        location.href = '{% url 'user:login' %}'
+                    } else if (data.status == '200') {
+                        $(".add_jump").stop().animate({
+                                'left': $to_y + 7,
+                                'top': $to_x + 7
+                            },
+                            "fast", function () {
+                                $(".add_jump").fadeOut('fast', function () {
+                                    $('#show_count').html(data.count);
+                                });
+
+                            });
+                    } else {
+
+                    }
+                });
+
+
+        });
+
+</script>
+{% endblock %}

@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}
+    三岁书屋-购物车
+{% endblock %}
+
+
+{% block content %}
+    <div class="total_count">全部书籍<em>{{ count }}</em>件</div>
+    <ul class="cart_list_th clearfix">
+        <li class="col01">书籍名称</li>
+        <li class="col02">书籍单位</li>
+        <li class="col03">书籍价格</li>
+        <li class="col04">数量</li>
+        <li class="col05">小计</li>
+        <li class="col06">操作</li>
+    </ul>
+    <form action="{% url 'order:generate' %}" method="post">
+        {% for cart in carts %}
+            {% csrf_token %}
+            <ul class="cart_list_td clearfix">
+                <li class="col01"><input type="checkbox" name="goods_1" class='selecte_goods' value="{{ cart.book.id }}" checked></li>
+                <li class="col02"><img src="{{ MEDIA_URL }}{{ cart.book.image }}"></li>
+                <li class="col03">{{ cart.book.name }}<br><em>{{ cart.book.price }}元/{{ cart.book.unit }}</em></li>
+                <li class="col04">{{ cart.book.unit }}</li>
+                <li class="col05">{{ cart.book.price }}元</li>
+                <li class="col06">
+                    <div class="num_add">
+                        <a href="javascript:;" class="add fl" >+</a>
+                        <input type="text" class="num_show fl" value="{{ cart.number }} " id="number">
+                        <a href="javascript:;" class="minus fl" >-</a>
+                    </div>
+                </li>
+                <li class="col07">{{ cart.total }}元</li>
+                <li class="col08"><a href="javascript:;" class="del" tag="{{ cart.book.id }}">删除</a></li>
+            </ul>
+        {% endfor %}
+
+        <ul class="settlements">
+            <li class="col01"><input type="checkbox" name="" checked="" onclick="selectAll(this)" id="checked"></li>
+            <li class="col02">全选</li>
+            <li class="col03">合计(不含运费)：<span>¥</span><em id="price_total">42.60</em><br>共计<b>{{ count }}</b>件商品</li>
+            <li class="col04"><input type="submit" value="去结算"></li>
+        </ul>
+    </form>
+{% endblock %}
+
+
+{% block myjs %}
+    <script>
+        $(function () {
+            var total = 0;
+
+            $('.col07').each(function (i) {
+                total += parseFloat(this.innerText)
+            });
+            total = total.toFixed(2);
+            $('#price_total').text(total + "元");
+
+        });
+
+
+
+        $('.selecte_goods').click(function () {
+            var isChecked = $(this).prop('checked');
+            {#console.log(isChecked);#}
+            var price = parseFloat($(this).parent().parent().children('.col05').text());
+            var prices = parseFloat($(this).parent().parent().children('.col07').text());
+            var total = parseFloat($('#price_total').text());
+            if (isChecked) {
+                total += prices;
+                total = total.toFixed(2);
+                $(this).attr('name','goods_1');
+                {#console.log($(this).parent().parent().parent().children('.cart_list_td'));#}
+                $(this).parent().parent().parent().children('.cart_list_td').each(function () {
+                    {#console.log($(this).tagName);#}
+                    var isCheck = $(this).children('.col01').children().prop('checked');
+                    if (!isCheck){
+                        return false;
+                    }
+                    else{
+                        $('#checked').prop('checked', true);
+                    }
+
+
+                });
+
+            } else {
+                total -= prices;
+                 total = total.toFixed(2);
+                 $(this).attr('name','goods_0');
+                 $('#checked').prop('checked', false);
+            }
+            parseFloat($(this).parent().parent().children('.col07').text(prices));
+            $('#price_total').text(total + "元");
+        });
+
+
+
+
+        $('.add').click(function () {
+            var ischeck = $(this).parent().parent().parent().children('.col01').children().prop('checked');
+            var number = parseInt($(this).parent().children('#number').val());
+            var total = parseFloat($('#price_total').text());
+
+            var price = parseFloat($(this).parent().parent().prev(".col05").text());
+            var prices = parseFloat($(this).parent().parent().parent().children('.col07').text());
+            var book_id = $(this).parent().parent().parent().children('.col01').children().val();
+
+            prices += price;
+            prices = prices.toFixed(2);
+            number+=1;
+            parseFloat($(this).parent().parent().parent().children('.col07').text(prices+"元"));
+            parseInt($(this).parent().children('#number').val(number));
+            $.getJSON('{% url 'cart:add_num' %}',{'number':number,'book_id':book_id},
+            function (data) {
+                {#alert(data);#}
+
+            });
+            if (ischeck){
+                total += price;
+                total = total.toFixed(2);
+                $('#price_total').text(total + "元");
+            }
+        });
+         $('.minus').click(function () {
+
+             var ischeck = $(this).parent().parent().parent().children('.col01').children().prop('checked');
+            var number = parseInt($(this).parent().children('#number').val());
+            var total = parseFloat($('#price_total').text());
+            var price = parseFloat($(this).parent().parent().prev(".col05").text());
+            var prices = parseFloat($(this).parent().parent().parent().children('.col07').text());
+            var book_id = $(this).parent().parent().parent().children('.col01').children().val();
+            if(number==1){
+                alert('数量不能再少了');
+                return;
+            }
+            prices -= price;
+            prices = prices.toFixed(2);
+            number-=1;
+            parseFloat($(this).parent().parent().parent().children('.col07').text(prices+"元"));
+            parseInt($(this).parent().children('#number').val(number));
+            $.getJSON('{% url 'cart:add_num' %}',{'number':number,'book_id':book_id},
+            function (data) {
+                {#alert(data);#}
+
+            });
+            if (ischeck){
+                total -= price;
+                total = total.toFixed(2);
+                $('#price_total').text(total + "元");
+            }
+        });
+        //加减点击事件
+        //$('.add').click(function () {
+        //    var number = parseInt($('#number').val());
+        //   var price = parseFloat($('.selecte_goods').parent().parent().children('.col05').text());
+        //   var prices= parseFloat($('.selecte_goods').parent().parent().children('.col07').text());
+         //   prices += price;
+         //   prices =prices.toFixed(2);
+        //    $('#number').text(number);
+        //    $('.selecte_goods').parent().parent().children('.col07').text(prices);
+        //})
+        //}
+
+        //定义全选函数
+        function selectAll(obj) {
+            var isSelected = $(obj).prop('checked');
+            var total = 0;
+            if (isSelected) {
+
+                $('.selecte_goods').each(function (i) {
+                    $(this).prop('checked', true);
+                    $(this).attr('name','goods_1');
+                    total += parseFloat($(this).parent().parent().children('.col07').text());
+
+                });
+
+
+            } else {
+                $('.selecte_goods').each(function (i) {
+                    $(this).prop('checked', false);
+                    $(this).attr('name','goods_0');
+                });
+
+            }
+            //设置总价
+            $('#price_total').text(total + "元");
+        }
+
+        $('.del').click(function () {
+            var flag = confirm('确定删除该商品吗？');
+            var bid = $(this).attr('tag');
+            if (flag) {
+                location.href = '{% url 'cart:delete' %}?bid=' + bid;
+            }
+        });
+
+
+    </script>
+{% endblock %}

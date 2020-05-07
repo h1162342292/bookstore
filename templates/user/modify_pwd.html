@@ -1,0 +1,65 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>三岁书屋-修改密码</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+    <script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'js/modify.js' %}"></script>
+</head>
+<body>
+<div class="login_top clearfix">
+    <a href="#" class="login_logo"><img src="{% static 'image/logo02.png' %}"></a>
+</div>
+
+<div class="login_form_bg">
+    <div class="login_form_wrap clearfix">
+        <div class="login_banner fl"></div>
+        <div class="slogan fl">书籍 · 进步的阶梯</div>
+        <div class="login_form fr">
+            <div class="login_title clearfix">
+                <h1>修改密码</h1>
+
+            </div>
+            <p style="color:red;margin-left: 50px;">{{ errmsg }}</p>
+            <div class="reg_form clearfix">
+
+                <form action="{% url 'user:modify' %}" method="post" id="modify_form">
+                    <ul>
+                        {% csrf_token %}
+                        <input type="hidden" name="phone" value="{{ phone }}">
+                        <li>
+                            <input type="password" name="pwd"  placeholder="请输入新密码" id="pwd">
+                            <div class="user_error">输入错误</div>
+                        </li>
+                        <li>
+                            <input type="password" name="cpwd"  placeholder="请输入确认密码" id="cpwd">
+                            <div class="pwd_error">输入错误</div>
+                        </li>
+
+                        <li> <input type="submit" name="" value="修改密码" class="input_submit" style="background-color: #00bc6f"></li>
+
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="footer no-mp">
+    <div class="foot_link">
+        <a href="#">关于我们</a>
+        <span>|</span>
+        <a href="#">联系我们</a>
+        <span>|</span>
+        <a href="#">招聘人才</a>
+        <span>|</span>
+        <a href="#">友情链接</a>
+    </div>
+    <p>CopyRight © 2016 北京未来鲜生信息技术有限公司 All Rights Reserved</p>
+    <p>电话：010-****888 京ICP备*******8号</p>
+</div>
+
+</body>
+</html>
